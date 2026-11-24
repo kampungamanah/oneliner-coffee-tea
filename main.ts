@@ -1,14 +1,21 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import * as fs from "node:fs";
 
-// One letter: A for coffee, B for tea.
-// "A" means coffee — the agent runs on it, and tea is only plan B.
-// Writes the line to /output/entry.txt (or $MAKEFUN_OUTPUT_DIR/entry.txt).
-// No trailing newline: the gate counts every character.
-const line = "A";
-for (const dir of [process.env.MAKEFUN_OUTPUT_DIR, "/output"]) {
-  if (!dir) continue;
+// One letter settles the morning question: A for coffee, B for tea.
+// "A" wins: the agent runs on coffee, and tea is only plan B.
+// The file must end exactly at the last character of the line: no newline is appended.
+// The choice is final — coffee, in a single letter.
+const entry = "A";
+
+function emit(target) {
+  fs.mkdirSync(target, { recursive: true });
+  fs.writeFileSync(target + "/entry.txt", entry);
+}
+
+const destinations = [process.env.MAKEFUN_OUTPUT_DIR, "/output"].filter(Boolean);
+for (const destination of destinations) {
   try {
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(dir + "/entry.txt", line);
-  } catch {}
+    emit(destination);
+  } catch {
+    // If one destination cannot be written, move on; the other still gets the entry.
+  }
 }
